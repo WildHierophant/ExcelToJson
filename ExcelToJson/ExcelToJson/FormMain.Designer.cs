@@ -62,7 +62,7 @@
             // 
             // buttonStartingExport
             // 
-            this.buttonStartingExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonStartingExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonStartingExport.Location = new System.Drawing.Point(322, 329);
             this.buttonStartingExport.Name = "buttonStartingExport";
             this.buttonStartingExport.Size = new System.Drawing.Size(88, 23);
@@ -136,7 +136,7 @@
             // 
             // buttonClearListBoxMessage
             // 
-            this.buttonClearListBoxMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonClearListBoxMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonClearListBoxMessage.Location = new System.Drawing.Point(416, 329);
             this.buttonClearListBoxMessage.Name = "buttonClearListBoxMessage";
             this.buttonClearListBoxMessage.Size = new System.Drawing.Size(88, 23);

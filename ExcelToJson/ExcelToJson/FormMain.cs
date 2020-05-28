@@ -239,190 +239,205 @@ namespace ExcelToJson
             {
                 //服务端表头
                 IRow titleRow = sheet.GetRow(serverTitleRow);
-                //单元格类型表头
-                IRow cellTypeRow = sheet.GetRow(serverCellTypeRow);
-                //最后一格的编号，即列数
-                int columnCount = titleRow.LastCellNum;
-                //遍历表头是否有空值，如果有则不导出
-                for (int i = titleRow.FirstCellNum; i < columnCount; i++)
+                if (titleRow != null)
                 {
-                    if (titleRow.GetCell(i) == null || titleRow.GetCell(i).ToString().Length == 0)
+                    //单元格类型表头
+                    IRow cellTypeRow = sheet.GetRow(serverCellTypeRow);
+                    //最后一格的编号，即列数
+                    int columnCount = titleRow.LastCellNum;
+                    //遍历表头是否有空值，如果有则不导出
+                    for (int i = titleRow.FirstCellNum; i < columnCount; i++)
                     {
-                        stopwatch.Stop();
-                        timer = stopwatch.ElapsedMilliseconds * 0.001;
-                        timeCount += timer;
-                        listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "列表头存在数据异常，该表格无法导出Json，请修改");
-                        listBox.Items.Add("耗时" + timer + "秒");
-                        listBox.Items.Add("*********************************************");
-                        titleIsError = true;
-                        break;
-                    }
-                }
-                //遍历单元格类型表头是否有空值，如果有则不导出
-                for (int i = cellTypeRow.FirstCellNum; i < columnCount; i++)
-                {
-                    if (cellTypeRow.GetCell(i) == null || cellTypeRow.GetCell(i).ToString().Length == 0)
-                    {
-                        stopwatch.Stop();
-                        timer = stopwatch.ElapsedMilliseconds * 0.001;
-                        timeCount += timer;
-                        listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "列单元格类型存在数据异常，该表格无法导出Json，请修改");
-                        listBox.Items.Add("耗时" + timer + "秒");
-                        listBox.Items.Add("*********************************************");
-                        titleIsError = true;
-                        break;
-                    }
-                }
-                try
-                {
-                    if (titleIsError == false)
-                    {
-                        string jsonPath = textBoxJsonURL.Text + @"\" + sheetName + ".json";
-                        FileStream fileStreamJson = new FileStream(jsonPath, FileMode.OpenOrCreate);
-                        StreamWriter streamWriter = new StreamWriter(fileStreamJson);
-                        streamWriter.Write("{\r\n");
-                        streamWriter.Write("   \"" + sheetName.Trim() + "\":[\r\n");
-                        //最后一行的编号
-                        int rowCount = sheet.LastRowNum;
-                        //遍历行
-                        for (int i = serverDataRow; i <= rowCount; i++)
+                        if (titleRow.GetCell(i) == null || titleRow.GetCell(i).ToString().Length == 0)
                         {
-                            //获取行
-                            IRow row = sheet.GetRow(i);
-                            if (row == null)
+                            stopwatch.Stop();
+                            timer = stopwatch.ElapsedMilliseconds * 0.001;
+                            timeCount += timer;
+                            listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "列表头存在数据异常，该表格无法导出Json，请修改");
+                            listBox.Items.Add("耗时" + timer + "秒");
+                            listBox.Items.Add("*********************************************");
+                            titleIsError = true;
+                            break;
+                        }
+                    }
+                    if(titleIsError == false)
+                    {
+                        //遍历单元格类型表头是否有空值，如果有则不导出
+                        for (int i = cellTypeRow.FirstCellNum; i < columnCount; i++)
+                        {
+                            if (cellTypeRow.GetCell(i) == null || cellTypeRow.GetCell(i).ToString().Length == 0)
                             {
-                                listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行存在数据异常");
+                                stopwatch.Stop();
+                                timer = stopwatch.ElapsedMilliseconds * 0.001;
+                                timeCount += timer;
+                                listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "列单元格类型存在数据异常，该表格无法导出Json，请修改");
+                                listBox.Items.Add("耗时" + timer + "秒");
+                                listBox.Items.Add("*********************************************");
+                                titleIsError = true;
                                 break;
                             }
-                            string strWrite = "        " + "{\r\n";
-                            streamWriter.Write(strWrite);
-                            string strWrite2 = "";
-                            //遍历该行的列
-                            for (int j = row.FirstCellNum; j < columnCount; j++)
+                        }
+                    }
+                    try
+                    {
+                        if (titleIsError == false)
+                        {
+                            string jsonPath = textBoxJsonURL.Text + @"\" + sheetName + ".json";
+                            FileStream fileStreamJson = new FileStream(jsonPath, FileMode.OpenOrCreate);
+                            StreamWriter streamWriter = new StreamWriter(fileStreamJson);
+                            streamWriter.Write("{\r\n");
+                            streamWriter.Write("   \"" + sheetName.Trim() + "\":[\r\n");
+                            //最后一行的编号
+                            int rowCount = sheet.LastRowNum;
+                            //遍历行
+                            for (int i = serverDataRow; i <= rowCount; i++)
                             {
-                                if (titleRow.GetCell(j) != null && titleRow.GetCell(j).ToString().Length != 0)
+                                //获取行
+                                IRow row = sheet.GetRow(i);
+                                if (row == null)
                                 {
-                                    string value = "";
-                                    if (row.GetCell(j) != null)
+                                    listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行存在数据异常");
+                                    break;
+                                }
+                                string strWrite = "        " + "{\r\n";
+                                streamWriter.Write(strWrite);
+                                string strWrite2 = "";
+                                //遍历该行的列
+                                for (int j = row.FirstCellNum; j < columnCount; j++)
+                                {
+                                    if (titleRow.GetCell(j) != null && titleRow.GetCell(j).ToString().Length != 0)
                                     {
-                                        //目标单元格类型
-                                        CellType cellType = row.GetCell(j).CellType;
-                                        //单元格类型表头
-                                        CellType rowCellType = default;
-                                        switch (cellTypeRow.GetCell(j).ToString().Trim())
+                                        string value = "";
+                                        if (row.GetCell(j) != null)
                                         {
-                                            case "int":
-                                                rowCellType = CellType.Numeric;
-                                                break;
-                                            case "string":
-                                                rowCellType = CellType.String;
-                                                break;
-                                            case "bool":
-                                                rowCellType = CellType.Boolean;
-                                                break;
-                                            case "":
-                                                rowCellType = CellType.Blank;
-                                                break;
-                                        }
-                                        if (cellType != rowCellType && cellType != CellType.Formula)
-                                        {
-                                            stopwatch.Stop();
-                                            timer = stopwatch.ElapsedMilliseconds * 0.001;
-                                            timeCount += timer;
-                                            listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行，第" + (j + 1) + "列单元格类型存在数据异常，该表格无法继续导出Json，请修改");
-                                            listBox.Items.Add("耗时" + timer + "秒");
-                                            listBox.Items.Add("*********************************************");
-                                            streamWriter.Close();
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            switch (cellType)
+                                            //目标单元格类型
+                                            CellType cellType = row.GetCell(j).CellType;
+                                            //单元格类型表头
+                                            CellType rowCellType = default;
+                                            switch (cellTypeRow.GetCell(j).ToString().Trim())
                                             {
-                                                case CellType.Numeric:
-                                                    value = row.GetCell(j).NumericCellValue.ToString().Trim();
+                                                case "int":
+                                                    rowCellType = CellType.Numeric;
                                                     break;
-                                                case CellType.String:
-                                                    value = row.GetCell(j).StringCellValue.ToString().Trim();
+                                                case "string":
+                                                    rowCellType = CellType.String;
                                                     break;
-                                                case CellType.Formula:
-                                                    switch (rowCellType)
-                                                    {
-                                                        case CellType.Numeric:
-                                                            value = row.GetCell(j).NumericCellValue.ToString().Trim();
-                                                            break;
-                                                        case CellType.String:
-                                                            value = row.GetCell(j).StringCellValue.ToString().Trim();
-                                                            break;
-                                                        case CellType.Boolean:
-                                                            value = row.GetCell(j).BooleanCellValue.ToString().Trim();
-                                                            break;
-                                                    }
+                                                case "bool":
+                                                    rowCellType = CellType.Boolean;
                                                     break;
-                                                case CellType.Blank:
-                                                    break;
-                                                case CellType.Boolean:
-                                                    value = row.GetCell(j).BooleanCellValue.ToString().Trim();
-                                                    break;
-                                                case CellType.Unknown:
-                                                    listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行，第" + (j + 1) + "列单元格类型未知");
-                                                    break;
-                                                case CellType.Error:
-                                                    listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行，第" + (j + 1) + "列单元格类型存在异常");
+                                                case "":
+                                                    rowCellType = CellType.Blank;
                                                     break;
                                             }
+                                            if (cellType != rowCellType && cellType != CellType.Formula)
+                                            {
+                                                stopwatch.Stop();
+                                                timer = stopwatch.ElapsedMilliseconds * 0.001;
+                                                timeCount += timer;
+                                                listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行，第" + (j + 1) + "列单元格类型存在数据异常，该表格无法继续导出Json，请修改");
+                                                listBox.Items.Add("耗时" + timer + "秒");
+                                                listBox.Items.Add("*********************************************");
+                                                streamWriter.Close();
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                switch (cellType)
+                                                {
+                                                    case CellType.Numeric:
+                                                        value = row.GetCell(j).NumericCellValue.ToString().Trim();
+                                                        break;
+                                                    case CellType.String:
+                                                        value = row.GetCell(j).StringCellValue.ToString().Trim();
+                                                        break;
+                                                    case CellType.Formula:
+                                                        switch (rowCellType)
+                                                        {
+                                                            case CellType.Numeric:
+                                                                value = row.GetCell(j).NumericCellValue.ToString().Trim();
+                                                                break;
+                                                            case CellType.String:
+                                                                value = row.GetCell(j).StringCellValue.ToString().Trim();
+                                                                break;
+                                                            case CellType.Boolean:
+                                                                value = row.GetCell(j).BooleanCellValue.ToString().Trim();
+                                                                break;
+                                                        }
+                                                        break;
+                                                    case CellType.Blank:
+                                                        break;
+                                                    case CellType.Boolean:
+                                                        value = row.GetCell(j).BooleanCellValue.ToString().Trim();
+                                                        break;
+                                                    case CellType.Unknown:
+                                                        listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行，第" + (j + 1) + "列单元格类型未知");
+                                                        break;
+                                                    case CellType.Error:
+                                                        listBox.Items.Add("Error:文件[" + fileStreamName + "]表格，第" + (i + 1) + "行，第" + (j + 1) + "列单元格类型存在异常");
+                                                        break;
+                                                }
+                                            }
                                         }
+                                        string title = titleRow.GetCell(j).ToString().Trim();
+                                        strWrite2 += "          \"" + title + "\":\"" + value + "\",\r\n";
                                     }
-                                    string title = titleRow.GetCell(j).ToString().Trim();
-                                    strWrite2 += "          \"" + title + "\":\"" + value + "\",\r\n";
+                                }
+                                int endStr = strWrite2.LastIndexOf(",");
+                                if (endStr != -1)
+                                {
+                                    strWrite2 = strWrite2.Remove(endStr, 1);
+                                    streamWriter.Write(strWrite2);
+                                }
+                                if (i == rowCount)
+                                {
+                                    streamWriter.Write("        }\r\n");
+                                }
+                                else
+                                {
+                                    streamWriter.Write("        },\r\n");
                                 }
                             }
-                            int endStr = strWrite2.LastIndexOf(",");
-                            if (endStr != -1)
-                            {
-                                strWrite2 = strWrite2.Remove(endStr, 1);
-                                streamWriter.Write(strWrite2);
-                            }
-                            if (i == rowCount)
-                            {
-                                streamWriter.Write("        }\r\n");
-                            }
-                            else
-                            {
-                                streamWriter.Write("        },\r\n");
-                            }
+                            streamWriter.Write("   ]\r\n");
+                            streamWriter.Write("}\r\n");
+                            streamWriter.Close();
+                            excelNumSuccessToJson += 1;
+                            stopwatch.Stop();
+                            timer = stopwatch.ElapsedMilliseconds * 0.001;
+                            timeCount += timer;
+                            listBox.Items.Add("文件[" + fileStreamName + "]导出Json成功");
+                            listBox.Items.Add("耗时" + timer + "秒");
+                            listBox.Items.Add("*********************************************");
                         }
-                        streamWriter.Write("   ]\r\n");
-                        streamWriter.Write("}\r\n");
-                        streamWriter.Close();
-                        excelNumSuccessToJson += 1;
+                    }
+                    catch (OverflowException)
+                    {
                         stopwatch.Stop();
                         timer = stopwatch.ElapsedMilliseconds * 0.001;
                         timeCount += timer;
-                        listBox.Items.Add("文件[" + fileStreamName + "]导出Json成功");
+                        listBox.Items.Add("Error:堆栈溢出");
                         listBox.Items.Add("耗时" + timer + "秒");
                         listBox.Items.Add("*********************************************");
+                        return;
+                    }
+                    catch (IOException ioException)
+                    {
+                        stopwatch.Stop();
+                        timer = stopwatch.ElapsedMilliseconds * 0.001;
+                        timeCount += timer;
+                        listBox.Items.Add("Error:" + ioException.Message);
+                        listBox.Items.Add("耗时" + timer + "秒");
+                        listBox.Items.Add("*********************************************");
+                        return;
                     }
                 }
-                catch (OverflowException)
+                else
                 {
                     stopwatch.Stop();
                     timer = stopwatch.ElapsedMilliseconds * 0.001;
                     timeCount += timer;
-                    listBox.Items.Add("Error:堆栈溢出");
+                    listBox.Items.Add("Error:文件[" + fileStreamName + "]表格表头为空，该表格无法导出Json，请修改");
                     listBox.Items.Add("耗时" + timer + "秒");
                     listBox.Items.Add("*********************************************");
-                    return;
-                }
-                catch (IOException ioException)
-                {
-                    stopwatch.Stop();
-                    timer = stopwatch.ElapsedMilliseconds * 0.001;
-                    timeCount += timer;
-                    listBox.Items.Add("Error:" + ioException.Message);
-                    listBox.Items.Add("耗时" + timer + "秒");
-                    listBox.Items.Add("*********************************************");
-                    return;
                 }
             }
         }

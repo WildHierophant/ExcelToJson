@@ -173,7 +173,18 @@ namespace ExcelToJson
             {
                 DirectoryInfo directoryInfo = new DirectoryInfo(jsonPath);
                 //检查excelURL内地址是否存在
-                if (directoryInfo.Exists == false)
+                if (directoryInfo.Exists)
+                {
+                    FileInfo[] fileInfos = directoryInfo.GetFiles();
+                    foreach (FileInfo fileInfo in fileInfos)
+                    {
+                        if (fileInfo.Name.EndsWith("json"))
+                        {
+                            File.Delete(fileInfo.FullName);
+                        }
+                    }
+                }
+                else
                 {
                     listBox.Items.Add("Error:导出地址有误，请重新选择文件夹目录");
                     listBox.Items.Add("---------------------------------------------------");
